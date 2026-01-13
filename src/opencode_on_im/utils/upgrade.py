@@ -16,10 +16,11 @@ async def check_upgrade(settings: Settings) -> dict[str, Any] | None:
                     "platform": "docker",
                 },
             )
-            
+
             if response.status_code == 200:
-                return response.json()
+                data: dict[str, Any] = response.json()
+                return data
     except Exception:
         pass
-    
+
     return None

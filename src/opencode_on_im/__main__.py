@@ -6,9 +6,8 @@ import sys
 import click
 from rich.console import Console
 
-from opencode_on_im.core.config import Settings, load_settings
 from opencode_on_im.core.app import Application
-
+from opencode_on_im.core.config import load_settings
 
 console = Console()
 
@@ -40,7 +39,7 @@ def run(config: str | None) -> None:
 def setup(config: str | None) -> None:
     """Interactive setup wizard."""
     from opencode_on_im.core.wizard import run_setup_wizard
-    
+
     run_setup_wizard(config)
 
 
@@ -49,7 +48,7 @@ def setup(config: str | None) -> None:
 def qrcode(instance_name: str | None) -> None:
     """Generate QR code for instance binding."""
     from opencode_on_im.core.instance import generate_qr_code
-    
+
     generate_qr_code(instance_name)
 
 
@@ -57,7 +56,7 @@ def qrcode(instance_name: str | None) -> None:
 def status() -> None:
     """Show current status of all instances and bindings."""
     from opencode_on_im.core.instance import show_status
-    
+
     show_status()
 
 

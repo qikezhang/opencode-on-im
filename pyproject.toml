@@ -25,7 +25,7 @@ opencode-on-im = "opencode_on_im.__main__:main"
 [tool.poetry.dependencies]
 python = "^3.11"
 aiogram = "^3.4"
-dingtalk-sdk = "^2.0"
+dingtalk-stream = "^0.24"
 pydantic = "^2.6"
 pydantic-settings = "^2.2"
 aiohttp = "^3.9"
