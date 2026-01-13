@@ -58,7 +58,7 @@ class NotificationRouter:
         """Route an OpenCode event to all relevant users."""
         instance_id = event.get("instance_id")
         if not instance_id:
-            logger.warning("event_missing_instance_id", event=event)
+            logger.warning("event_missing_instance_id", event_data=event)
             return
 
         online_users = self.get_online_users(instance_id)

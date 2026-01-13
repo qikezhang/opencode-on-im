@@ -123,8 +123,8 @@ class InstanceRegistry:
         if not instance:
             return None
 
-        instance.connect_secret = self._generate_secret(instance_id)
         instance.qr_version += 1
+        instance.connect_secret = self._generate_secret(instance_id, instance.qr_version)
         self._save()
 
         logger.info("qr_reset", instance_id=instance_id, version=instance.qr_version)
@@ -145,11 +145,13 @@ class InstanceRegistry:
             return False
         return hmac.compare_digest(instance.connect_secret, secret)
 
-    def _generate_secret(self, instance_id: str) -> str:
+    def _generate_secret(self, instance_id: str, version: int = 1) -> str:
         """Generate HMAC secret for instance."""
+        # Include version to ensure reset generates a different secret
+        data = f"{instance_id}:{version}".encode()
         return hmac.new(
             self.settings.secret_key.encode(),
-            instance_id.encode(),
+            data,
             hashlib.sha256,
         ).hexdigest()[:32]
 
