@@ -10,7 +10,7 @@ from opencode_on_im.core.instance import InstanceRegistry
 from opencode_on_im.core.notification import NotificationRouter
 from opencode_on_im.core.session import SessionManager
 from opencode_on_im.opencode.client import OpenCodeClient
-from opencode_on_im.opencode.events import EventSubscriber
+from opencode_on_im.opencode.events import EventSubscriber, OpenCodeEvent
 
 if TYPE_CHECKING:
     from opencode_on_im.adapters.base import BaseAdapter
@@ -108,6 +108,13 @@ class Application:
         for adapter in self.adapters:
             await adapter.stop()
 
-    async def _on_opencode_event(self, event: dict[str, Any]) -> None:
+    async def _on_opencode_event(self, event: OpenCodeEvent) -> None:
         """Handle events from OpenCode."""
-        await self.notification_router.route(event, self.adapters)
+        # Convert OpenCodeEvent to dict for notification router
+        event_dict: dict[str, Any] = {
+            "type": event.type,
+            "instance_id": event.session_id,  # Map session to instance
+            "content": event.content,
+            **(event.data or {}),
+        }
+        await self.notification_router.route(event_dict, self.adapters)
