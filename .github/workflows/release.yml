@@ -84,7 +84,8 @@ jobs:
 
     - name: Publish package distributions to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      continue-on-error: true
       with:
         password: ${{ secrets.PYPI_TOKEN }}
         # If password is provided, id-token is ignored.
-        # Use this if OIDC is not configured.
+
