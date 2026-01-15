@@ -125,13 +125,13 @@ class TelegramAdapter(BaseAdapter):
 
         # Process image
         try:
-            img: PILImage = Image.open(BytesIO(image_bytes))
+            img: PILImage = Image.open(BytesIO(image_bytes))  # type: ignore[assignment]
 
             # Resize if needed
             if max(img.size) > TELEGRAM_PHOTO_MAX_DIMENSION:
                 ratio = TELEGRAM_PHOTO_MAX_DIMENSION / max(img.size)
                 new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
-                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                img = img.resize(new_size, Image.Resampling.LANCZOS)  # type: ignore[assignment]
                 logger.debug("image_resized", original=img.size, new=new_size)
 
             # Try PNG first
@@ -145,7 +145,7 @@ class TelegramAdapter(BaseAdapter):
                 buffer = BytesIO()
                 # Convert to RGB for JPEG (drop alpha)
                 if img.mode in ("RGBA", "P"):
-                    img = img.convert("RGB")
+                    img = img.convert("RGB")  # type: ignore[assignment]
                 img.save(buffer, format="JPEG", quality=quality, optimize=True)
                 if buffer.tell() <= TELEGRAM_MAX_PHOTO_SIZE:
                     logger.debug("image_compressed", quality=quality, size=buffer.tell())
@@ -154,7 +154,7 @@ class TelegramAdapter(BaseAdapter):
             # Last resort: aggressive resize + low quality
             while max(img.size) > 800:
                 new_size = (img.size[0] // 2, img.size[1] // 2)
-                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                img = img.resize(new_size, Image.Resampling.LANCZOS)  # type: ignore[assignment]
 
             buffer = BytesIO()
             img.save(buffer, format="JPEG", quality=40, optimize=True)
