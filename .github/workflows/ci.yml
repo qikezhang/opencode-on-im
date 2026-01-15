@@ -21,26 +21,29 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v1
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.7.1
+        virtualenvs-create: true
+        virtualenvs-in-project: true
 
     - name: Install dependencies
       run: |
-        uv pip install --system -e ".[dev]"
-        uv pip install --system pytest pytest-asyncio pytest-cov ruff mypy
+        poetry install --with dev
 
     - name: Run Linting
       run: |
-        ruff check src/ tests/
-        ruff format --check src/ tests/
+        poetry run ruff check src/ tests/
+        poetry run ruff format --check src/ tests/
 
     - name: Type Checking
       run: |
-        mypy src/
+        poetry run mypy src/
 
     - name: Run Tests
       run: |
-        PYTHONPATH=src pytest tests/ --cov=opencode_on_im --cov-report=xml
+        PYTHONPATH=src poetry run pytest tests/ --cov=opencode_on_im --cov-report=xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
