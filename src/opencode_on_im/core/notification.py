@@ -16,28 +16,24 @@ class NotificationRouter:
     def __init__(self) -> None:
         self._online_users: dict[str, set[tuple[str, str]]] = {}
 
-    def register_online(
-        self, instance_id: str, platform: str, user_id: str
-    ) -> None:
+    def register_online(self, instance_id: str, platform: str, user_id: str) -> None:
         """Register a user as online for an instance."""
         if instance_id not in self._online_users:
             self._online_users[instance_id] = set()
         self._online_users[instance_id].add((platform, user_id))
 
-    def unregister_online(
-        self, instance_id: str, platform: str, user_id: str
-    ) -> None:
+    def unregister_online(self, instance_id: str, platform: str, user_id: str) -> None:
         """Unregister a user from online status."""
         if instance_id in self._online_users:
             self._online_users[instance_id].discard((platform, user_id))
 
-    def get_online_users(
-        self, instance_id: str
-    ) -> list[tuple[str, str]]:
+    def get_online_users(self, instance_id: str) -> list[tuple[str, str]]:
         """Get list of online users for an instance."""
         return list(self._online_users.get(instance_id, []))
 
-    def format_online_status(self, instance_id: str, exclude_user: tuple[str, str] | None = None) -> str:
+    def format_online_status(
+        self, instance_id: str, exclude_user: tuple[str, str] | None = None
+    ) -> str:
         """Format online users status message."""
         users = self.get_online_users(instance_id)
 

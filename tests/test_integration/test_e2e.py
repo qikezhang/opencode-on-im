@@ -230,9 +230,7 @@ class TestQRBindingFlow:
         assert instance.id in instances
 
     @pytest.mark.asyncio
-    async def test_invalid_qr_rejected(
-        self, instance_registry: InstanceRegistry
-    ) -> None:
+    async def test_invalid_qr_rejected(self, instance_registry: InstanceRegistry) -> None:
         """Verify invalid QR codes are rejected."""
         # Create instance
         instance = instance_registry.create_instance(name="test-instance")

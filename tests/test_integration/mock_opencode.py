@@ -71,25 +71,21 @@ class MockOpenCodeServer:
         self._app.router.add_get("/session", self._handle_list_sessions)
         self._app.router.add_post("/session", self._handle_create_session)
         self._app.router.add_get("/session/{session_id}", self._handle_get_session)
-        self._app.router.add_post(
-            "/session/{session_id}/message", self._handle_send_message
-        )
-        self._app.router.add_post(
-            "/session/{session_id}/prompt_async", self._handle_send_async
-        )
-        self._app.router.add_post(
-            "/session/{session_id}/abort", self._handle_abort
-        )
+        self._app.router.add_post("/session/{session_id}/message", self._handle_send_message)
+        self._app.router.add_post("/session/{session_id}/prompt_async", self._handle_send_async)
+        self._app.router.add_post("/session/{session_id}/abort", self._handle_abort)
         self._app.router.add_get("/event", self._handle_sse)
         self._app.router.add_get("/global/event", self._handle_sse)
 
     async def _handle_health(self, request: web.Request) -> web.Response:
         """GET /global/health - Health check."""
         self.received_requests.append({"method": "GET", "path": "/global/health"})
-        return web.json_response({
-            "status": "ok",
-            "version": "0.1.0-mock",
-        })
+        return web.json_response(
+            {
+                "status": "ok",
+                "version": "0.1.0-mock",
+            }
+        )
 
     async def _handle_list_sessions(self, request: web.Request) -> web.Response:
         """GET /session - List all sessions."""
@@ -103,49 +99,59 @@ class MockOpenCodeServer:
     async def _handle_create_session(self, request: web.Request) -> web.Response:
         """POST /session - Create new session."""
         data = await request.json() if request.body_exists else {}
-        self.received_requests.append({
-            "method": "POST",
-            "path": "/session",
-            "data": data,
-        })
+        self.received_requests.append(
+            {
+                "method": "POST",
+                "path": "/session",
+                "data": data,
+            }
+        )
 
         session_id = f"ses_{len(self.sessions) + 1:04d}"
         title = data.get("title", f"Session {len(self.sessions) + 1}")
         session = MockSession(id=session_id, title=title)
         self.sessions[session_id] = session
 
-        return web.json_response({
-            "id": session_id,
-            "title": title,
-        })
+        return web.json_response(
+            {
+                "id": session_id,
+                "title": title,
+            }
+        )
 
     async def _handle_get_session(self, request: web.Request) -> web.Response:
         """GET /session/{id} - Get session details."""
         session_id = request.match_info["session_id"]
-        self.received_requests.append({
-            "method": "GET",
-            "path": f"/session/{session_id}",
-        })
+        self.received_requests.append(
+            {
+                "method": "GET",
+                "path": f"/session/{session_id}",
+            }
+        )
 
         session = self.sessions.get(session_id)
         if not session:
             raise web.HTTPNotFound(text="Session not found")
 
-        return web.json_response({
-            "id": session.id,
-            "title": session.title,
-            "messages": session.messages,
-        })
+        return web.json_response(
+            {
+                "id": session.id,
+                "title": session.title,
+                "messages": session.messages,
+            }
+        )
 
     async def _handle_send_message(self, request: web.Request) -> web.Response:
         """POST /session/{id}/message - Send message (blocking)."""
         session_id = request.match_info["session_id"]
         data = await request.json()
-        self.received_requests.append({
-            "method": "POST",
-            "path": f"/session/{session_id}/message",
-            "data": data,
-        })
+        self.received_requests.append(
+            {
+                "method": "POST",
+                "path": f"/session/{session_id}/message",
+                "data": data,
+            }
+        )
 
         session = self.sessions.get(session_id)
         if not session:
@@ -173,12 +179,14 @@ class MockOpenCodeServer:
         session.messages.append(ai_msg)
 
         # Emit event to SSE subscribers
-        await self._emit_event({
-            "type": "message.complete",
-            "sessionId": session_id,
-            "messageId": ai_msg_id,
-            "content": self.response_text,
-        })
+        await self._emit_event(
+            {
+                "type": "message.complete",
+                "sessionId": session_id,
+                "messageId": ai_msg_id,
+                "content": self.response_text,
+            }
+        )
 
         return web.json_response(ai_msg)
 
@@ -186,11 +194,13 @@ class MockOpenCodeServer:
         """POST /session/{id}/prompt_async - Send message (non-blocking)."""
         session_id = request.match_info["session_id"]
         data = await request.json()
-        self.received_requests.append({
-            "method": "POST",
-            "path": f"/session/{session_id}/prompt_async",
-            "data": data,
-        })
+        self.received_requests.append(
+            {
+                "method": "POST",
+                "path": f"/session/{session_id}/prompt_async",
+                "data": data,
+            }
+        )
 
         session = self.sessions.get(session_id)
         if not session:
@@ -206,15 +216,11 @@ class MockOpenCodeServer:
         session.messages.append(user_msg)
 
         # Schedule async response generation
-        asyncio.create_task(
-            self._generate_async_response(session_id, user_msg_id)
-        )
+        asyncio.create_task(self._generate_async_response(session_id, user_msg_id))
 
         return web.json_response({"status": "accepted", "messageId": user_msg_id})
 
-    async def _generate_async_response(
-        self, session_id: str, user_msg_id: str
-    ) -> None:
+    async def _generate_async_response(self, session_id: str, user_msg_id: str) -> None:
         """Generate response asynchronously and emit SSE events."""
         await asyncio.sleep(self.response_delay)
 
@@ -231,37 +237,45 @@ class MockOpenCodeServer:
         session.messages.append(ai_msg)
 
         # Emit streaming events
-        await self._emit_event({
-            "type": "message.start",
-            "sessionId": session_id,
-            "messageId": ai_msg_id,
-        })
+        await self._emit_event(
+            {
+                "type": "message.start",
+                "sessionId": session_id,
+                "messageId": ai_msg_id,
+            }
+        )
 
         # Simulate streaming text
         words = self.response_text.split()
         for i, word in enumerate(words):
-            await self._emit_event({
-                "type": "message.delta",
-                "sessionId": session_id,
-                "messageId": ai_msg_id,
-                "delta": word + (" " if i < len(words) - 1 else ""),
-            })
+            await self._emit_event(
+                {
+                    "type": "message.delta",
+                    "sessionId": session_id,
+                    "messageId": ai_msg_id,
+                    "delta": word + (" " if i < len(words) - 1 else ""),
+                }
+            )
             await asyncio.sleep(0.01)
 
-        await self._emit_event({
-            "type": "message.complete",
-            "sessionId": session_id,
-            "messageId": ai_msg_id,
-            "content": self.response_text,
-        })
+        await self._emit_event(
+            {
+                "type": "message.complete",
+                "sessionId": session_id,
+                "messageId": ai_msg_id,
+                "content": self.response_text,
+            }
+        )
 
     async def _handle_abort(self, request: web.Request) -> web.Response:
         """POST /session/{id}/abort - Cancel current task."""
         session_id = request.match_info["session_id"]
-        self.received_requests.append({
-            "method": "POST",
-            "path": f"/session/{session_id}/abort",
-        })
+        self.received_requests.append(
+            {
+                "method": "POST",
+                "path": f"/session/{session_id}/abort",
+            }
+        )
         return web.json_response({"status": "aborted"})
 
     async def _handle_sse(self, request: web.Request) -> web.StreamResponse:

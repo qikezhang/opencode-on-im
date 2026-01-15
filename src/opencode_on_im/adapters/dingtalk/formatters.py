@@ -54,8 +54,7 @@ class ActionCard:
                     "text": self.markdown,
                     "btnOrientation": self.btn_orientation,
                     "btns": [
-                        {"title": btn.title, "actionURL": btn.action_url}
-                        for btn in self.buttons
+                        {"title": btn.title, "actionURL": btn.action_url} for btn in self.buttons
                     ],
                 },
             }
@@ -171,6 +170,7 @@ def format_list(items: list[str], ordered: bool = False) -> str:
 
 
 # Pre-built card templates
+
 
 def create_status_card(
     instance_name: str,

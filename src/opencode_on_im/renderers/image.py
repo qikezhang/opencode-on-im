@@ -75,8 +75,8 @@ class ContentRenderer:
     def __init__(self, settings: Settings) -> None:
         self.threshold = settings.message_image_threshold
         self.style = DEFAULT_STYLE
-        self.font_size = getattr(settings, 'image_font_size', DEFAULT_FONT_SIZE)
-        self.width = getattr(settings, 'image_width', DEFAULT_WIDTH)
+        self.font_size = getattr(settings, "image_font_size", DEFAULT_FONT_SIZE)
+        self.width = getattr(settings, "image_width", DEFAULT_WIDTH)
 
     async def render(self, content: str) -> RenderResult:
         """Render content, converting to image if exceeds threshold.
@@ -306,13 +306,18 @@ class ContentRenderer:
 
         # JSON
         stripped = content.strip()
-        if (stripped.startswith("{") and stripped.endswith("}")) or \
-           (stripped.startswith("[") and stripped.endswith("]")):
+        if (stripped.startswith("{") and stripped.endswith("}")) or (
+            stripped.startswith("[") and stripped.endswith("]")
+        ):
             return "json"
 
         # Diff
-        if content.startswith("diff ") or content.startswith("---") or \
-           content.count("\n+") > 2 and content.count("\n-") > 2:
+        if (
+            content.startswith("diff ")
+            or content.startswith("---")
+            or content.count("\n+") > 2
+            and content.count("\n-") > 2
+        ):
             return "diff"
 
         # Log output (timestamps, log levels)

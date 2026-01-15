@@ -1,6 +1,5 @@
 """Tests for Telegram formatters."""
 
-
 from opencode_on_im.adapters.telegram.formatters import (
     TELEGRAM_MESSAGE_LIMIT,
     escape_markdown_v2,

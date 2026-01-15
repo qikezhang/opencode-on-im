@@ -82,7 +82,9 @@ def run_setup_wizard(config_path: str | None = None) -> None:
         console.print("[green]✓ DingTalk configured[/green]")
 
     if not has_platform:
-        console.print("\n[yellow]Warning: No IM platform configured. At least one is required.[/yellow]")
+        console.print(
+            "\n[yellow]Warning: No IM platform configured. At least one is required.[/yellow]"
+        )
         if not Confirm.ask("Continue anyway?", default=False):
             console.print("[red]Setup cancelled.[/red]")
             return

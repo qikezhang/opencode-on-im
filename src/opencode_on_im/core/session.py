@@ -69,9 +69,7 @@ class SessionManager:
 
         await self._db.commit()
 
-    async def bind_user(
-        self, platform: str, user_id: str, instance_id: str
-    ) -> bool:
+    async def bind_user(self, platform: str, user_id: str, instance_id: str) -> bool:
         """Bind a user to an instance."""
         assert self._db is not None
 
@@ -92,9 +90,7 @@ class SessionManager:
             logger.error("bind_failed", error=str(e))
             return False
 
-    async def unbind_user(
-        self, platform: str, user_id: str, instance_id: str
-    ) -> bool:
+    async def unbind_user(self, platform: str, user_id: str, instance_id: str) -> bool:
         """Unbind a user from an instance."""
         assert self._db is not None
 
@@ -105,9 +101,7 @@ class SessionManager:
         await self._db.commit()
         return cursor.rowcount > 0
 
-    async def get_user_instances(
-        self, platform: str, user_id: str
-    ) -> list[str]:
+    async def get_user_instances(self, platform: str, user_id: str) -> list[str]:
         """Get all instances bound to a user."""
         assert self._db is not None
 
@@ -118,9 +112,7 @@ class SessionManager:
         rows = await cursor.fetchall()
         return [row[0] for row in rows]
 
-    async def get_instance_users(
-        self, instance_id: str
-    ) -> list[tuple[str, str]]:
+    async def get_instance_users(self, instance_id: str) -> list[tuple[str, str]]:
         """Get all users bound to an instance."""
         assert self._db is not None
 
@@ -131,9 +123,7 @@ class SessionManager:
         rows = await cursor.fetchall()
         return [(str(row[0]), str(row[1])) for row in rows]
 
-    async def update_last_active(
-        self, platform: str, user_id: str
-    ) -> None:
+    async def update_last_active(self, platform: str, user_id: str) -> None:
         """Update last active timestamp for a user."""
         assert self._db is not None
 
@@ -184,9 +174,7 @@ class SessionManager:
         )
         await self._db.commit()
 
-    async def get_offline_messages(
-        self, platform: str, user_id: str
-    ) -> list[dict[str, Any]]:
+    async def get_offline_messages(self, platform: str, user_id: str) -> list[dict[str, Any]]:
         """Get and clear offline messages for a user."""
         assert self._db is not None
 

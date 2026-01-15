@@ -16,7 +16,9 @@ class TestUpgradeCheck:
 
         mock_response = AsyncMock()
         mock_response.status_code = 200
-        mock_response.json = MagicMock(return_value={"update_available": True, "latest_version": "1.0.0"})
+        mock_response.json = MagicMock(
+            return_value={"update_available": True, "latest_version": "1.0.0"}
+        )
 
         mock_client = AsyncMock()
         mock_client.get.return_value = mock_response

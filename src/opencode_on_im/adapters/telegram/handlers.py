@@ -24,7 +24,6 @@ def _validate_proxy_url(url: str) -> bool:
 
 
 def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
-
     @dp.message(CommandStart())
     async def cmd_start(message: Message) -> None:
         user_id = str(message.from_user.id) if message.from_user else ""
@@ -33,9 +32,9 @@ def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
 
         if instances:
             await message.answer(
-                "欢迎回来\\! 你已绑定的实例:\n" +
-                "\n".join(f"• `{i}`" for i in instances) +
-                "\n\n使用 /help 查看命令列表"
+                "欢迎回来\\! 你已绑定的实例:\n"
+                + "\n".join(f"• `{i}`" for i in instances)
+                + "\n\n使用 /help 查看命令列表"
             )
         else:
             await message.answer(
@@ -151,7 +150,9 @@ def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
                 masked_url = _mask_proxy_url(proxy.url)
                 await message.answer(f"*代理状态*\n\n已启用: ✅\nURL: `{masked_url}`")
             else:
-                await message.answer("*代理状态*\n\n已启用: ❌\n\n使用 `/proxy set \u003curl\u003e` 设置代理")
+                await message.answer(
+                    "*代理状态*\n\n已启用: ❌\n\n使用 `/proxy set \u003curl\u003e` 设置代理"
+                )
             return
 
         action = parts[1].lower()
@@ -201,7 +202,9 @@ def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
                     instance = adapter.instance_registry.get_instance(instance_id)
                     adapter.notification_router.register_online(instance_id, "telegram", user_id)
 
-                    await message.answer(f"绑定成功\\! 实例: `{instance.name if instance else instance_id}`")
+                    await message.answer(
+                        f"绑定成功\\! 实例: `{instance.name if instance else instance_id}`"
+                    )
                 else:
                     await message.answer("二维码无效或已过期")
             except Exception as e:

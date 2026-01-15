@@ -19,7 +19,6 @@ class IncomingMessage:
 
 
 class BaseAdapter(ABC):
-
     def __init__(
         self,
         settings: Settings,

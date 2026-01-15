@@ -212,9 +212,7 @@ class OpenCodeClient:
             raise
 
     @api_retry
-    async def fork_session(
-        self, session_id: str, message_id: str
-    ) -> dict[str, Any]:
+    async def fork_session(self, session_id: str, message_id: str) -> dict[str, Any]:
         """Fork a session at a specific message."""
         try:
             client = await self._get_client()
@@ -257,6 +255,7 @@ class OpenCodeClient:
             This method uses custom retry logic with longer timeouts
             since AI responses can take significant time.
         """
+
         # Custom retry for long-running message sends
         @retry(
             retry=retry_if_exception_type((httpx.ReadTimeout, httpx.ConnectError)),
@@ -281,11 +280,13 @@ class OpenCodeClient:
                     else:
                         media_type = "image/png"  # default
 
-                    parts.append({
-                        "type": "image",
-                        "mediaType": media_type,
-                        "data": base64.b64encode(img_data).decode(),
-                    })
+                    parts.append(
+                        {
+                            "type": "image",
+                            "mediaType": media_type,
+                            "data": base64.b64encode(img_data).decode(),
+                        }
+                    )
 
             payload: dict[str, Any] = {"parts": parts}
 
@@ -339,11 +340,13 @@ class OpenCodeClient:
                     else:
                         media_type = "image/png"
 
-                    parts.append({
-                        "type": "image",
-                        "mediaType": media_type,
-                        "data": base64.b64encode(img_data).decode(),
-                    })
+                    parts.append(
+                        {
+                            "type": "image",
+                            "mediaType": media_type,
+                            "data": base64.b64encode(img_data).decode(),
+                        }
+                    )
 
             response = await client.post(
                 f"/session/{session_id}/prompt_async",
@@ -372,9 +375,7 @@ class OpenCodeClient:
             raise
 
     @api_retry
-    async def run_command(
-        self, session_id: str, command: str
-    ) -> dict[str, Any]:
+    async def run_command(self, session_id: str, command: str) -> dict[str, Any]:
         """Execute a slash command (e.g., /refactor, /test)."""
         try:
             client = await self._get_client()
@@ -392,9 +393,7 @@ class OpenCodeClient:
             raise
 
     @api_retry
-    async def run_shell(
-        self, session_id: str, command: str
-    ) -> dict[str, Any]:
+    async def run_shell(self, session_id: str, command: str) -> dict[str, Any]:
         """Run a shell command in the session context."""
         try:
             client = await self._get_client()

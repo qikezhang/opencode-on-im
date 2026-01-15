@@ -55,6 +55,7 @@ class Application:
 
         try:
             from opencode_on_im.utils.upgrade import check_upgrade
+
             result = await check_upgrade(self.settings)
             if result and result.get("update_available"):
                 logger.info(
@@ -71,6 +72,7 @@ class Application:
         """Initialize enabled IM adapters."""
         if self.settings.telegram.token:
             from opencode_on_im.adapters.telegram import TelegramAdapter
+
             telegram_adapter = TelegramAdapter(
                 self.settings,
                 self.session_manager,
@@ -82,6 +84,7 @@ class Application:
 
         if self.settings.dingtalk.app_key:
             from opencode_on_im.adapters.dingtalk import DingTalkAdapter
+
             dingtalk_adapter = DingTalkAdapter(
                 self.settings,
                 self.session_manager,

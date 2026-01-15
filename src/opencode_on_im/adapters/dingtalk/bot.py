@@ -11,6 +11,7 @@ import structlog
 try:
     import dingtalk_stream
     from dingtalk_stream import AckMessage, ChatbotHandler, ChatbotMessage
+
     DINGTALK_AVAILABLE = True
 except ImportError:
     DINGTALK_AVAILABLE = False
@@ -44,9 +45,7 @@ class DingTalkAdapter(BaseAdapter):
         instance_registry: InstanceRegistry,
         notification_router: NotificationRouter,
     ) -> None:
-        super().__init__(
-            settings, session_manager, instance_registry, notification_router
-        )
+        super().__init__(settings, session_manager, instance_registry, notification_router)
         self._running = False
         self._client: Any = None
         self._task: asyncio.Task[None] | None = None
@@ -156,9 +155,7 @@ class DingTalkAdapter(BaseAdapter):
             if self.instance_registry.verify_connect_secret(instance_id, connect_secret):
                 await self.session_manager.bind_user("dingtalk", user_id, instance_id)
                 instance = self.instance_registry.get_instance(instance_id)
-                self.notification_router.register_online(
-                    instance_id, "dingtalk", user_id
-                )
+                self.notification_router.register_online(instance_id, "dingtalk", user_id)
 
                 handler.reply_markdown(
                     "绑定成功",

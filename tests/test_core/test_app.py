@@ -19,11 +19,13 @@ class TestApplication:
 
     @pytest.fixture
     def app(self, settings):
-        with patch("opencode_on_im.core.app.SessionManager"), \
-             patch("opencode_on_im.core.app.InstanceRegistry"), \
-             patch("opencode_on_im.core.app.NotificationRouter"), \
-             patch("opencode_on_im.core.app.OpenCodeClient"), \
-             patch("opencode_on_im.core.app.EventSubscriber"):
+        with (
+            patch("opencode_on_im.core.app.SessionManager"),
+            patch("opencode_on_im.core.app.InstanceRegistry"),
+            patch("opencode_on_im.core.app.NotificationRouter"),
+            patch("opencode_on_im.core.app.OpenCodeClient"),
+            patch("opencode_on_im.core.app.EventSubscriber"),
+        ):
             return Application(settings)
 
     @pytest.mark.asyncio
@@ -130,7 +132,9 @@ class TestApplication:
     @pytest.mark.asyncio
     async def test_check_upgrade_enabled(self, app):
         app.settings.upgrade_check_enabled = True
-        with patch("opencode_on_im.utils.upgrade.check_upgrade", new_callable=AsyncMock) as mock_check:
+        with patch(
+            "opencode_on_im.utils.upgrade.check_upgrade", new_callable=AsyncMock
+        ) as mock_check:
             mock_check.return_value = {"update_available": True, "latest_version": "1.0.0"}
             await app._check_upgrade()
             mock_check.assert_awaited_once()

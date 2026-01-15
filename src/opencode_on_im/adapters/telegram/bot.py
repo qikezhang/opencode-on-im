@@ -72,7 +72,11 @@ class TelegramAdapter(BaseAdapter):
         parse_mode: str | None = None,
     ) -> None:
         """Send text message with optional parse mode."""
-        pm = ParseMode.MARKDOWN_V2 if parse_mode is None else getattr(ParseMode, parse_mode.upper(), None)
+        pm = (
+            ParseMode.MARKDOWN_V2
+            if parse_mode is None
+            else getattr(ParseMode, parse_mode.upper(), None)
+        )
         await self.bot.send_message(chat_id=int(user_id), text=text, parse_mode=pm)
 
     async def send_image(
@@ -175,11 +179,11 @@ class TelegramAdapter(BaseAdapter):
 
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(
-                    text=btn["text"],
-                    url=btn.get("url"),
-                    callback_data=btn.get("callback")
-                )]
+                [
+                    InlineKeyboardButton(
+                        text=btn["text"], url=btn.get("url"), callback_data=btn.get("callback")
+                    )
+                ]
                 for btn in buttons
             ]
         )

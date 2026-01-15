@@ -44,9 +44,7 @@ class InstanceRegistry:
             try:
                 with open(self.instances_file) as f:
                     data = json.load(f)
-                self._instances = {
-                    k: Instance(**v) for k, v in data.items()
-                }
+                self._instances = {k: Instance(**v) for k, v in data.items()}
             except Exception as e:
                 logger.error("load_instances_failed", error=str(e))
 
@@ -168,9 +166,7 @@ class InstanceRegistry:
             "version": instance.qr_version,
         }
 
-        return base64.urlsafe_b64encode(
-            json.dumps(payload).encode()
-        ).decode()
+        return base64.urlsafe_b64encode(json.dumps(payload).encode()).decode()
 
     def generate_qr_image(self, instance: Instance) -> bytes:
         """Generate QR code image as PNG bytes."""

@@ -285,6 +285,7 @@ class EventSubscriber:
 
                 # Exponential backoff with jitter
                 import random
+
                 jitter = random.uniform(0.8, 1.2)
                 self._reconnect_delay = min(
                     self._reconnect_delay * 2 * jitter,

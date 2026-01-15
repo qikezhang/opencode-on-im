@@ -235,9 +235,7 @@ async def format_event(event: dict[str, Any], settings: Settings) -> FormattedMe
     )
 
 
-async def _format_message_content(
-    event: dict[str, Any], settings: Settings
-) -> FormattedMessage:
+async def _format_message_content(event: dict[str, Any], settings: Settings) -> FormattedMessage:
     """Format message content, handling long content and code blocks."""
     content = event.get("content", "")
 
@@ -294,9 +292,7 @@ async def _format_message_content(
     return FormattedMessage(text=formatted_text, parse_mode="MarkdownV2")
 
 
-async def format_for_split_send(
-    content: str, settings: Settings
-) -> SplitMessages:
+async def format_for_split_send(content: str, settings: Settings) -> SplitMessages:
     """Format content for sending as multiple messages if needed.
 
     Use this for very long content that needs to be split.

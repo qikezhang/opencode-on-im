@@ -59,9 +59,10 @@ class TestPromptWithValidation:
             mock_ask.assert_called_once()
 
     def test_prompt_retry_on_invalid(self):
-        with patch("opencode_on_im.core.wizard.Prompt.ask") as mock_ask, \
-             patch("opencode_on_im.core.wizard.console.print") as mock_print:
-
+        with (
+            patch("opencode_on_im.core.wizard.Prompt.ask") as mock_ask,
+            patch("opencode_on_im.core.wizard.console.print") as mock_print,
+        ):
             # First return invalid, then valid
             mock_ask.side_effect = ["invalid", "valid"]
 

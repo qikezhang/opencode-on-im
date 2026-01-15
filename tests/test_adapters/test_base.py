@@ -1,6 +1,5 @@
 """Tests for base adapter."""
 
-
 from opencode_on_im.adapters.base import IncomingMessage
 
 

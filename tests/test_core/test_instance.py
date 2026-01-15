@@ -141,6 +141,7 @@ class TestInstanceRegistry:
         assert qr_data is not None
         # Should be base64 encoded
         import base64
+
         decoded = json.loads(base64.urlsafe_b64decode(qr_data))
         assert decoded["instance_id"] == instance.id
         assert decoded["instance_name"] == "test"
@@ -155,7 +156,7 @@ class TestInstanceRegistry:
         assert image_bytes is not None
         assert len(image_bytes) > 0
         # PNG magic bytes
-        assert image_bytes[:8] == b'\x89PNG\r\n\x1a\n'
+        assert image_bytes[:8] == b"\x89PNG\r\n\x1a\n"
 
     def test_persistence(self, temp_settings):
         """Test that instances persist across registry instances."""
