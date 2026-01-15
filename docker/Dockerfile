@@ -28,7 +28,7 @@ COPY pyproject.toml ./
 COPY src/ ./src/
 
 # Build wheel with poetry-core, then install to /install
-RUN pip install build && \
+RUN pip install build poetry-core && \
     python -m build --wheel --outdir /tmp/dist . && \
     pip install --target=/install /tmp/dist/*.whl
 
