@@ -34,7 +34,8 @@ class SessionManager:
         """Create database tables if not exist."""
         assert self._db is not None
 
-        await self._db.execute("""
+        await self._db.execute(
+            """
             CREATE TABLE IF NOT EXISTS bindings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 platform TEXT NOT NULL,
@@ -44,9 +45,11 @@ class SessionManager:
                 last_active TEXT NOT NULL,
                 UNIQUE(platform, user_id, instance_id)
             )
-        """)
+        """
+        )
 
-        await self._db.execute("""
+        await self._db.execute(
+            """
             CREATE TABLE IF NOT EXISTS offline_messages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 instance_id TEXT NOT NULL,
@@ -55,17 +58,22 @@ class SessionManager:
                 content TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )
-        """)
+        """
+        )
 
-        await self._db.execute("""
+        await self._db.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_bindings_user
             ON bindings(platform, user_id)
-        """)
+        """
+        )
 
-        await self._db.execute("""
+        await self._db.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_offline_user
             ON offline_messages(platform, user_id)
-        """)
+        """
+        )
 
         await self._db.commit()
 
