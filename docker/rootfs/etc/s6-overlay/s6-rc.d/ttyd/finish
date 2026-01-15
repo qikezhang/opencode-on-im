@@ -1,27 +1,18 @@
-#!/command/execlineb -P
-
+#!/bin/bash
 # Finish script for ttyd service
-foreground { echo "[ttyd] Service stopped with exit code ${1}" }
+
+EXIT_CODE=$1
+echo "[ttyd] Service stopped with exit code ${EXIT_CODE}"
 
 # Exit codes:
 # 0   = Normal exit
 # 143 = SIGTERM (graceful shutdown)
 # 130 = SIGINT (Ctrl+C)
 
-ifelse { test ${1} -eq 0 }
-{
+if [ "${EXIT_CODE}" -eq 0 ] || [ "${EXIT_CODE}" -eq 143 ] || [ "${EXIT_CODE}" -eq 130 ]; then
     exit 0
-}
-ifelse { test ${1} -eq 143 }
-{
-    foreground { echo "[ttyd] Graceful shutdown complete" }
-    exit 0
-}
-ifelse { test ${1} -eq 130 }
-{
-    exit 0
-}
+fi
 
 # Abnormal exit - wait before s6 restarts
-foreground { echo "[ttyd] Abnormal exit, restarting in 3 seconds..." }
+echo "[ttyd] Abnormal exit, restarting in 3 seconds..."
 sleep 3

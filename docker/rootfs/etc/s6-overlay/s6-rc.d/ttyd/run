@@ -1,26 +1,19 @@
-#!/command/execlineb -P
-with-contenv
-
+#!/bin/bash
 # ttyd Web Terminal service
-# Provides browser-based terminal access
 
-fdmove -c 2 1
+# Redirect stderr to stdout
+exec 2>&1
 
-foreground { echo "[ttyd] Starting Web Terminal on port ${TTYD_PORT:-7681}..." }
+echo "[ttyd] Starting Web Terminal on port ${TTYD_PORT:-7681}..."
 
 cd /data
 
 # Run ttyd with bash shell
-# Options:
-#   -p: Port
-#   -W: Writable (allow input)
-#   -t: Theme settings
-#   -T: Set terminal type
-exec ttyd
-    -p ${TTYD_PORT:-7681}
-    -W
-    -t fontSize=14
-    -t fontFamily="DejaVu Sans Mono, monospace"
-    -t theme={"background":"#1e1e1e","foreground":"#d4d4d4"}
-    -T xterm-256color
+exec ttyd \
+    -p "${TTYD_PORT:-7681}" \
+    -W \
+    -t fontSize=14 \
+    -t fontFamily="DejaVu Sans Mono, monospace" \
+    -t theme='{"background":"#1e1e1e","foreground":"#d4d4d4"}' \
+    -T xterm-256color \
     /bin/bash -l

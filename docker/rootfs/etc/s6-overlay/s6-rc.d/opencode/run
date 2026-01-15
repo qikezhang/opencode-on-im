@@ -1,25 +1,21 @@
-#!/command/execlineb -P
-with-contenv
-
+#!/bin/bash
 # OpenCode AI coding assistant service
-# Requires: Node.js environment, OpenCode installed
 
-fdmove -c 2 1
+# Redirect stderr to stdout
+exec 2>&1
 
-foreground { echo "[opencode] Starting OpenCode service..." }
+echo "[opencode] Starting OpenCode service..."
 
 # Set working directory to /data for projects
 cd /data
 
 # Check if OpenCode is available
-backtick -n OPENCODE_BIN {
-    pipeline { which opencode } cat
-}
-importas -u OPENCODE_BIN OPENCODE_BIN
-
-if { test -n "${OPENCODE_BIN}" }
+if ! command -v opencode >/dev/null 2>&1; then
+    echo "[opencode] Error: opencode command not found"
+    exit 1
+fi
 
 # Run OpenCode with HTTP server enabled
 # Port 4096 is the default OpenCode API port
-exec s6-setuidgid cloudify
-opencode serve --port ${OPENCODE_PORT:-4096} --host 127.0.0.1
+exec s6-setuidgid cloudify \
+    opencode serve --port "${OPENCODE_PORT:-4096}" --host 127.0.0.1

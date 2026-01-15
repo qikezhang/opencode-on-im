@@ -1,7 +1,8 @@
-#!/command/execlineb -P
-
+#!/bin/bash
 # Finish script for OpenCode service
-foreground { echo "[opencode] Service stopped with exit code ${1}" }
+
+EXIT_CODE=$1
+echo "[opencode] Service stopped with exit code ${EXIT_CODE}"
 
 # Exit codes:
 # 0   = Normal exit
@@ -9,25 +10,10 @@ foreground { echo "[opencode] Service stopped with exit code ${1}" }
 # 130 = SIGINT (Ctrl+C)
 # 137 = SIGKILL (force kill)
 
-ifelse { test ${1} -eq 0 }
-{
+if [ "${EXIT_CODE}" -eq 0 ] || [ "${EXIT_CODE}" -eq 143 ] || [ "${EXIT_CODE}" -eq 130 ] || [ "${EXIT_CODE}" -eq 137 ]; then
     exit 0
-}
-ifelse { test ${1} -eq 143 }
-{
-    foreground { echo "[opencode] Graceful shutdown complete" }
-    exit 0
-}
-ifelse { test ${1} -eq 130 }
-{
-    exit 0
-}
-ifelse { test ${1} -eq 137 }
-{
-    foreground { echo "[opencode] Force killed" }
-    exit 0
-}
+fi
 
 # Abnormal exit - wait before s6 restarts
-foreground { echo "[opencode] Abnormal exit, restarting in 5 seconds..." }
+echo "[opencode] Abnormal exit, restarting in 5 seconds..."
 sleep 5
