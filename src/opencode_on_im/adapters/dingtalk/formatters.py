@@ -105,17 +105,14 @@ class LinkMessage:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to DingTalk API format."""
-        result = {
-            "msgtype": "link",
-            "link": {
-                "title": self.title,
-                "text": self.text,
-                "messageUrl": self.message_url,
-            },
+        link_data: dict[str, str] = {
+            "title": self.title,
+            "text": self.text,
+            "messageUrl": self.message_url,
         }
         if self.pic_url:
-            result["link"]["picUrl"] = self.pic_url
-        return result
+            link_data["picUrl"] = self.pic_url
+        return {"msgtype": "link", "link": link_data}
 
 
 def escape_markdown(text: str) -> str:

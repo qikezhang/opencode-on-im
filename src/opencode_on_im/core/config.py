@@ -70,7 +70,7 @@ class Settings(BaseSettings):
 def load_settings(config_path: str | None = None) -> Settings:
     """Load settings from environment and optional config file."""
     if config_path:
-        import yaml
+        import yaml  # type: ignore[import-untyped]
 
         with open(config_path) as f:
             config_data = yaml.safe_load(f)

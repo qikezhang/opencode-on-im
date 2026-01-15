@@ -2,7 +2,7 @@ import re
 from collections.abc import Callable
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 from rich.console import Console
 from rich.prompt import Confirm, Prompt
 

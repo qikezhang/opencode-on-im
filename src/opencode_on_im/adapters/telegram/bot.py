@@ -16,6 +16,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import BufferedInputFile
 from PIL import Image
+from PIL.Image import Image as PILImage
 
 from opencode_on_im.adapters.base import BaseAdapter
 from opencode_on_im.adapters.telegram.handlers import setup_handlers
@@ -124,7 +125,7 @@ class TelegramAdapter(BaseAdapter):
 
         # Process image
         try:
-            img = Image.open(BytesIO(image_bytes))
+            img: PILImage = Image.open(BytesIO(image_bytes))
 
             # Resize if needed
             if max(img.size) > TELEGRAM_PHOTO_MAX_DIMENSION:
