@@ -1,0 +1,33 @@
+#!/command/execlineb -P
+
+# Finish script for OpenCode service
+foreground { echo "[opencode] Service stopped with exit code ${1}" }
+
+# Exit codes:
+# 0   = Normal exit
+# 143 = SIGTERM (graceful shutdown)
+# 130 = SIGINT (Ctrl+C)
+# 137 = SIGKILL (force kill)
+
+ifelse { test ${1} -eq 0 }
+{
+    exit 0
+}
+ifelse { test ${1} -eq 143 }
+{
+    foreground { echo "[opencode] Graceful shutdown complete" }
+    exit 0
+}
+ifelse { test ${1} -eq 130 }
+{
+    exit 0
+}
+ifelse { test ${1} -eq 137 }
+{
+    foreground { echo "[opencode] Force killed" }
+    exit 0
+}
+
+# Abnormal exit - wait before s6 restarts
+foreground { echo "[opencode] Abnormal exit, restarting in 5 seconds..." }
+sleep 5

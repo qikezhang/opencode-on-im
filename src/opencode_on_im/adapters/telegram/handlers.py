@@ -1,5 +1,6 @@
 import base64
 import json
+import re
 from typing import TYPE_CHECKING
 
 import structlog
@@ -11,6 +12,15 @@ if TYPE_CHECKING:
     from opencode_on_im.adapters.telegram.bot import TelegramAdapter
 
 logger = structlog.get_logger()
+
+
+def _mask_proxy_url(url: str) -> str:
+    return re.sub(r"://([^:]+):([^@]+)@", r"://\1:****@", url)
+
+
+def _validate_proxy_url(url: str) -> bool:
+    valid_schemes = ("http://", "https://", "socks5://", "socks4://")
+    return any(url.startswith(s) for s in valid_schemes)
 
 
 def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
@@ -50,6 +60,7 @@ def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
 /web \\- 获取 Web Terminal 链接
 /sessions \\- 列出 OpenCode 会话
 /cancel \\- 取消当前任务
+/proxy \\- 查看/设置代理配置
 """
         await message.answer(help_text)
 
@@ -126,6 +137,50 @@ def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
     @dp.message(Command("cancel"))
     async def cmd_cancel(message: Message) -> None:
         await message.answer("已发送取消请求")
+
+    @dp.message(Command("proxy"))
+    async def cmd_proxy(message: Message) -> None:
+        if not message.text:
+            return
+
+        parts = message.text.split(maxsplit=2)
+
+        if len(parts) == 1:
+            proxy = adapter.settings.proxy
+            if proxy.enabled and proxy.url:
+                masked_url = _mask_proxy_url(proxy.url)
+                await message.answer(f"*代理状态*\n\n已启用: ✅\nURL: `{masked_url}`")
+            else:
+                await message.answer("*代理状态*\n\n已启用: ❌\n\n使用 `/proxy set \u003curl\u003e` 设置代理")
+            return
+
+        action = parts[1].lower()
+
+        if action == "off" or action == "disable":
+            adapter.settings.proxy.enabled = False
+            await message.answer("✅ 代理已禁用")
+        elif action == "on" or action == "enable":
+            if not adapter.settings.proxy.url:
+                await message.answer("❌ 请先使用 `/proxy set \u003curl\u003e` 设置代理 URL")
+                return
+            adapter.settings.proxy.enabled = True
+            await message.answer("✅ 代理已启用")
+        elif action == "set" and len(parts) == 3:
+            proxy_url = parts[2]
+            if not _validate_proxy_url(proxy_url):
+                await message.answer("❌ 无效的代理 URL\\. 格式: `socks5://user:pass@host:port`")
+                return
+            adapter.settings.proxy.url = proxy_url
+            adapter.settings.proxy.enabled = True
+            await message.answer(f"✅ 代理已设置: `{_mask_proxy_url(proxy_url)}`")
+        else:
+            await message.answer(
+                "*代理命令*\n\n"
+                "`/proxy` \\- 查看当前状态\n"
+                "`/proxy set \u003curl\u003e` \\- 设置代理\n"
+                "`/proxy on` \\- 启用代理\n"
+                "`/proxy off` \\- 禁用代理"
+            )
 
     @dp.message(F.text)
     async def handle_text(message: Message) -> None:

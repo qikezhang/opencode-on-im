@@ -1,20 +1,23 @@
 """DingTalk Stream Mode adapter using dingtalk-stream SDK."""
 
-from typing import Any
 import asyncio
 import base64
+import contextlib
 import json
+from typing import Any
 
 import structlog
 
 try:
     import dingtalk_stream
-    from dingtalk_stream import ChatbotHandler, ChatbotMessage, AckMessage
+    from dingtalk_stream import AckMessage, ChatbotHandler, ChatbotMessage
     DINGTALK_AVAILABLE = True
 except ImportError:
     DINGTALK_AVAILABLE = False
-    dingtalk_stream = None
-    ChatbotHandler = object
+    dingtalk_stream = None  # type: ignore[assignment]
+    ChatbotHandler = object  # type: ignore[misc,assignment]
+    AckMessage = None  # type: ignore[misc,assignment]
+    ChatbotMessage = None  # type: ignore[misc,assignment]
 
 from opencode_on_im.adapters.base import BaseAdapter
 from opencode_on_im.core.config import Settings
@@ -187,10 +190,8 @@ class DingTalkAdapter(BaseAdapter):
 
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
 
         self._client = None
         self._handler = None

@@ -1,0 +1,31 @@
+#!/command/execlineb -P
+with-contenv
+
+# OpenCode IM Bot service
+# Bridges Telegram/DingTalk to OpenCode
+
+fdmove -c 2 1
+
+foreground { echo "[opencode-im-bot] Starting IM Bot service..." }
+
+# Wait for OpenCode to be ready
+foreground { echo "[opencode-im-bot] Waiting for OpenCode API..." }
+backtick -n OPENCODE_READY {
+    loopwhilex -x 0
+    foreground {
+        redirfd -w 2 /dev/null
+        curl -sf http://127.0.0.1:${OPENCODE_PORT:-4096}/health
+    }
+    importas ? ?
+    if { test ${?} -ne 0 }
+    foreground { sleep 2 }
+    exit 1
+}
+
+foreground { echo "[opencode-im-bot] OpenCode API ready" }
+
+cd /app
+
+# Run the IM bot
+exec s6-setuidgid cloudify
+python -m opencode_on_im run --config /data/config.yaml

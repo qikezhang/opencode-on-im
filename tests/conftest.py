@@ -1,10 +1,11 @@
+"""Pytest configuration and fixtures."""
+
+import sys
+from pathlib import Path
+
 import pytest
 
-
-@pytest.fixture
-def sample_settings():
-    from opencode_on_im.core.config import Settings
-    return Settings(
-        data_dir="/tmp/test-data",
-        telegram={"token": "test-token"},
-    )
+# Add src to Python path for tests
+src_path = Path(__file__).parent.parent / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))

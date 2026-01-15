@@ -54,6 +54,8 @@ class Settings(BaseSettings):
 
     message_image_threshold: int = 10
     max_offline_messages: int = 20
+    image_width: int = 720
+    image_font_size: int = 13
 
     secret_key: str = Field(default="change-me-in-production")
 

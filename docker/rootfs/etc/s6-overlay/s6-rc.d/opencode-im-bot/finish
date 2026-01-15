@@ -1,0 +1,30 @@
+#!/command/execlineb -P
+
+# Finish script for opencode-im-bot service
+foreground { echo "[opencode-im-bot] Service stopped with exit code ${1}" }
+
+# Exit codes:
+# 0   = Normal exit
+# 143 = SIGTERM (graceful shutdown)
+# 130 = SIGINT (Ctrl+C)
+
+ifelse { test ${1} -eq 0 }
+{
+    # Normal exit
+    exit 0
+}
+ifelse { test ${1} -eq 143 }
+{
+    # SIGTERM - graceful shutdown
+    foreground { echo "[opencode-im-bot] Graceful shutdown complete" }
+    exit 0
+}
+ifelse { test ${1} -eq 130 }
+{
+    # SIGINT
+    exit 0
+}
+
+# Abnormal exit - wait before s6 restarts
+foreground { echo "[opencode-im-bot] Abnormal exit, restarting in 5 seconds..." }
+sleep 5
