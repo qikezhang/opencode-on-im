@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "opencode-on-im"
-version = "0.1.3"
+version = "0.1.4"
 description = "Connect OpenCode AI coding assistant to IM platforms (Telegram, DingTalk)"
 authors = ["OpenCode Cloudify Team"]
 license = "MIT"
