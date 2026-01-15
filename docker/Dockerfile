@@ -27,9 +27,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml ./
 COPY src/ ./src/
 
-# Install poetry-core for building, then install package
-RUN pip install poetry-core && \
-    pip install --target=/install .
+# Build wheel with poetry-core, then install to /install
+RUN pip install build && \
+    python -m build --wheel --outdir /tmp/dist . && \
+    pip install --target=/install /tmp/dist/*.whl
 
 # =============================================================================
 # Stage 2: ttyd binary (pre-built from GitHub releases)
