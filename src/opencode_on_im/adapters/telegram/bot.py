@@ -115,8 +115,8 @@ class TelegramAdapter(BaseAdapter):
         if len(image_bytes) <= TELEGRAM_MAX_PHOTO_SIZE:
             # Check dimensions
             try:
-                img = Image.open(BytesIO(image_bytes))
-                if max(img.size) <= TELEGRAM_PHOTO_MAX_DIMENSION:
+                check_img = Image.open(BytesIO(image_bytes))
+                if max(check_img.size) <= TELEGRAM_PHOTO_MAX_DIMENSION:
                     # Image is fine as-is
                     return image_bytes
             except Exception:
