@@ -1,8 +1,9 @@
 """Tests for SessionManager."""
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 
 from opencode_on_im.core.config import Settings
 from opencode_on_im.core.session import SessionManager

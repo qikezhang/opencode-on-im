@@ -2,8 +2,9 @@
 
 import asyncio
 import json
-from typing import Any
 from dataclasses import dataclass, field
+from typing import Any
+
 from aiohttp import web
 
 

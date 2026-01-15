@@ -1,7 +1,8 @@
 """Tests for NotificationRouter."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from opencode_on_im.core.notification import NotificationRouter
 

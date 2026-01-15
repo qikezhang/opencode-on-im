@@ -1,8 +1,7 @@
 """Tests for base adapter."""
 
-import pytest
 
-from opencode_on_im.adapters.base import BaseAdapter, IncomingMessage
+from opencode_on_im.adapters.base import IncomingMessage
 
 
 class TestIncomingMessage:

@@ -1,12 +1,13 @@
 """Tests for InstanceRegistry."""
 
-import pytest
-from pathlib import Path
-import tempfile
 import json
+import tempfile
+from pathlib import Path
+
+import pytest
 
 from opencode_on_im.core.config import Settings
-from opencode_on_im.core.instance import InstanceRegistry, Instance
+from opencode_on_im.core.instance import InstanceRegistry
 
 
 @pytest.fixture

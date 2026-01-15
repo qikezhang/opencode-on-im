@@ -1,7 +1,6 @@
 """Tests for Telegram handlers."""
 
-import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from aiogram.types import Message, User
@@ -9,7 +8,6 @@ from aiogram.types import Message, User
 from opencode_on_im.adapters.telegram.handlers import (
     _mask_proxy_url,
     _validate_proxy_url,
-    setup_handlers,
 )
 
 
@@ -59,7 +57,7 @@ class TestHandlers:
     async def test_cmd_proxy_status_disabled(self, mock_message, mock_adapter):
         # Simulate /proxy command logic
         mock_adapter.settings.proxy.enabled = False
-        
+
         # We can't easily call the handler function directly because it's wrapped in setup_handlers
         # We should refactor handlers.py to expose the handler functions for testing
         pass

@@ -2,8 +2,6 @@
 
 from datetime import datetime
 
-import pytest
-
 from opencode_on_im.opencode.events import (
     ConnectionState,
     ConnectionStats,
@@ -89,7 +87,7 @@ class TestConnectionStats:
         stats.total_events = 10
         stats.total_reconnects = 2
         stats.current_state = ConnectionState.CONNECTED
-        
+
         assert stats.total_events == 10
         assert stats.total_reconnects == 2
         assert stats.current_state == ConnectionState.CONNECTED

@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from opencode_on_im.core.wizard import (
     prompt_with_validation,
     validate_not_empty,
@@ -54,24 +52,24 @@ class TestPromptWithValidation:
         with patch("opencode_on_im.core.wizard.Prompt.ask") as mock_ask:
             mock_ask.return_value = "valid"
             validator = MagicMock(return_value=(True, ""))
-            
+
             result = prompt_with_validation("Prompt", validator)
-            
+
             assert result == "valid"
             mock_ask.assert_called_once()
 
     def test_prompt_retry_on_invalid(self):
         with patch("opencode_on_im.core.wizard.Prompt.ask") as mock_ask, \
              patch("opencode_on_im.core.wizard.console.print") as mock_print:
-            
+
             # First return invalid, then valid
             mock_ask.side_effect = ["invalid", "valid"]
-            
+
             def validator(val):
                 return (val == "valid", "Error msg")
-            
+
             result = prompt_with_validation("Prompt", validator)
-            
+
             assert result == "valid"
             assert mock_ask.call_count == 2
             mock_print.assert_called_with("[red]Error: Error msg[/red]")

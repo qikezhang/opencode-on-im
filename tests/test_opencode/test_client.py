@@ -1,15 +1,15 @@
 """Tests for OpenCode client and events."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-import json
+
+import pytest
 
 from opencode_on_im.core.config import Settings
-from opencode_on_im.opencode.client import OpenCodeClient, MessagePart
+from opencode_on_im.opencode.client import OpenCodeClient
 from opencode_on_im.opencode.events import (
     EventSubscriber,
-    OpenCodeEvent,
     EventType,
+    OpenCodeEvent,
 )
 
 
@@ -133,7 +133,7 @@ class TestOpenCodeClient:
         # PNG magic bytes
         png_data = b"\x89PNG\r\n\x1a\n" + b"fake image data"
 
-        result = await client.send_message(
+        await client.send_message(
             session_id="ses_123",
             text="What's in this image?",
             images=[png_data],

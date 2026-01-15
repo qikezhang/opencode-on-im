@@ -7,12 +7,9 @@ These tests verify the complete flow:
 4. Event routing from OpenCode → Telegram
 """
 
-import asyncio
 import base64
 import json
-import tempfile
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 

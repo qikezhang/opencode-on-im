@@ -1,4 +1,3 @@
-import pytest
 from opencode_on_im.core.config import Settings
 
 

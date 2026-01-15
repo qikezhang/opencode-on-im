@@ -1,6 +1,5 @@
 """Tests for DingTalk formatters."""
 
-import pytest
 
 from opencode_on_im.adapters.dingtalk.formatters import (
     ActionButton,

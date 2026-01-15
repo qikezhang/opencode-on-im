@@ -1,6 +1,5 @@
 """Tests for main Application class."""
 
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -43,7 +42,7 @@ class TestApplication:
     @pytest.mark.asyncio
     async def test_init_adapters_telegram(self, app):
         app.settings.telegram.token = "test_token"
-        
+
         with patch("opencode_on_im.adapters.telegram.TelegramAdapter") as mock_adapter:
             await app._init_adapters()
             assert len(app.adapters) == 1
@@ -52,7 +51,7 @@ class TestApplication:
     @pytest.mark.asyncio
     async def test_init_adapters_dingtalk(self, app):
         app.settings.dingtalk.app_key = "test_key"
-        
+
         with patch("opencode_on_im.adapters.dingtalk.DingTalkAdapter") as mock_adapter:
             await app._init_adapters()
             assert len(app.adapters) == 1
@@ -63,9 +62,9 @@ class TestApplication:
         mock_adapter = AsyncMock()
         app.adapters.append(mock_adapter)
         app.event_subscriber.start = AsyncMock()
-        
+
         await app._start_services()
-        
+
         mock_adapter.start.assert_awaited_once()
         app.event_subscriber.start.assert_awaited_once_with(app._on_opencode_event)
 
@@ -74,9 +73,9 @@ class TestApplication:
         mock_adapter = AsyncMock()
         app.adapters.append(mock_adapter)
         app.event_subscriber.stop = AsyncMock()
-        
+
         await app._stop_services()
-        
+
         app.event_subscriber.stop.assert_awaited_once()
         mock_adapter.stop.assert_awaited_once()
 
@@ -87,16 +86,16 @@ class TestApplication:
         mock_event.session_id = "test_session"
         mock_event.content = "test_content"
         mock_event.data = {"extra": "data"}
-        
+
         app.adapters = [MagicMock()]
         app.notification_router.route = AsyncMock()
-        
+
         await app._on_opencode_event(mock_event)
-        
+
         app.notification_router.route.assert_awaited_once()
         args = app.notification_router.route.await_args[0]
         event_dict = args[0]
-        
+
         assert event_dict["type"] == "test_event"
         assert event_dict["instance_id"] == "test_session"
         assert event_dict["content"] == "test_content"
@@ -106,15 +105,15 @@ class TestApplication:
     async def test_run_cycle(self, app):
         # Mock run flow to avoid infinite wait
         app._shutdown_event.wait = AsyncMock()
-        
+
         # Mock init/start/stop methods
         app._init_adapters = AsyncMock()
         app._start_services = AsyncMock()
         app._stop_services = AsyncMock()
         app._check_upgrade = AsyncMock()
-        
+
         await app.run()
-        
+
         app._check_upgrade.assert_awaited_once()
         app._init_adapters.assert_awaited_once()
         app._start_services.assert_awaited_once()
