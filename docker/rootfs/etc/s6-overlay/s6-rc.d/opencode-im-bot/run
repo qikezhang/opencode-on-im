@@ -8,15 +8,16 @@ echo "[opencode-im-bot] Starting IM Bot service..."
 
 # Wait for OpenCode to be ready
 echo "[opencode-im-bot] Waiting for OpenCode API..."
+HOST="${OPENCODE_HOST:-127.0.0.1}"
 PORT="${OPENCODE_PORT:-4096}"
 MAX_RETRIES=30
 COUNT=0
 
-while ! curl -sf "http://127.0.0.1:${PORT}/health" >/dev/null; do
+while ! curl -sf "http://${HOST}:${PORT}/health" >/dev/null; do
     sleep 2
     COUNT=$((COUNT+1))
     if [ "$COUNT" -ge "$MAX_RETRIES" ]; then
-        echo "[opencode-im-bot] Timeout waiting for OpenCode API"
+        echo "[opencode-im-bot] Timeout waiting for OpenCode API at http://${HOST}:${PORT}"
         exit 1
     fi
 done

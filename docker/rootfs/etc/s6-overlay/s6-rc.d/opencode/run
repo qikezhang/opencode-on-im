@@ -11,8 +11,10 @@ cd /data
 
 # Check if OpenCode is available
 if ! command -v opencode >/dev/null 2>&1; then
-    echo "[opencode] Error: opencode command not found"
-    exit 1
+    echo "[opencode] 'opencode' command not found. Assuming external OpenCode instance."
+    echo "[opencode] Internal service disabled."
+    # Sleep forever to prevent restart loop and allow bot to connect to external instance
+    exec tail -f /dev/null
 fi
 
 # Run OpenCode with HTTP server enabled
