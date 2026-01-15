@@ -27,8 +27,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml ./
 COPY src/ ./src/
 
-# Install package with pip (uv-compatible pyproject.toml)
-RUN pip install --target=/install .
+# Install poetry-core for building, then install package
+RUN pip install poetry-core && \
+    pip install --target=/install .
 
 # =============================================================================
 # Stage 2: ttyd binary (pre-built from GitHub releases)
