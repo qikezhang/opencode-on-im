@@ -249,25 +249,7 @@ class OpenCodeClient:
         model_provider: str | None = None,
         model_id: str | None = None,
     ) -> dict[str, Any]:
-        """Send a message and wait for response (blocking).
-
-        The input is truncated to the last 100 lines to avoid oversized request
-        payloads that can exceed upstream limits.
-
-        Args:
-            session_id: Target session ID
-            text: Message text
-            images: Optional list of image bytes (PNG/JPEG)
-            model_provider: Optional model provider (e.g., "anthropic")
-            model_id: Optional model ID (e.g., "claude-3-5-sonnet-latest")
-
-        Returns:
-            Complete response including AI reply
-
-        Note:
-            This method uses custom retry logic with longer timeouts
-            since AI responses can take significant time.
-        """
+        """Send a message and wait for response (blocking)."""
         text = _tail_lines(text)
 
         # Custom retry for long-running message sends
@@ -336,13 +318,7 @@ class OpenCodeClient:
         text: str,
         images: list[bytes] | None = None,
     ) -> dict[str, Any]:
-        """Send a message without waiting for response (async).
-
-        The input is truncated to the last 100 lines to avoid oversized request
-        payloads that can exceed upstream limits.
-
-        Use SSE event stream to get the response.
-        """
+        """Send a message without waiting for response (async)."""
         text = _tail_lines(text)
         try:
             client = await self._get_client()
@@ -394,11 +370,7 @@ class OpenCodeClient:
 
     @api_retry
     async def run_command(self, session_id: str, command: str) -> dict[str, Any]:
-        """Execute a slash command (e.g., /refactor, /test).
-
-        The input is truncated to the last 100 lines to avoid oversized request
-        payloads that can exceed upstream limits.
-        """
+        """Execute a slash command (e.g., /refactor, /test)."""
         command = _tail_lines(command)
         try:
             client = await self._get_client()
@@ -417,11 +389,7 @@ class OpenCodeClient:
 
     @api_retry
     async def run_shell(self, session_id: str, command: str) -> dict[str, Any]:
-        """Run a shell command in the session context.
-
-        The input is truncated to the last 100 lines to avoid oversized request
-        payloads that can exceed upstream limits.
-        """
+        """Run a shell command in the session context."""
         command = _tail_lines(command)
         try:
             client = await self._get_client()
