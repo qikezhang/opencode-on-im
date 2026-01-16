@@ -217,7 +217,31 @@ def setup_handlers(dp: Dispatcher, adapter: "TelegramAdapter") -> None:
             await message.answer("请先绑定实例后再发送消息")
             return
 
-        await message.answer(f"收到: {len(text)} 字符\\. \\(OpenCode 集成待实现\\)")
+        await adapter.session_manager.update_last_active("telegram", user_id)
+
+        instance_id = instances[-1]
+        instance = adapter.instance_registry.get_instance(instance_id)
+        if not instance:
+            await message.answer("实例不存在或已被删除，请重新绑定")
+            return
+
+        session_id = instance.opencode_session_id
+        if not session_id:
+            session = await adapter.opencode_client.create_session(
+                title=f"Telegram:{instance.name}"
+            )
+            session_id = str(session.get("id"))
+            instance.opencode_session_id = session_id
+            adapter.instance_registry._save()
+
+        response = await adapter.opencode_client.send_message(session_id=session_id, text=text)
+
+        parts = response.get("parts", [])
+        assistant_text = ""
+        if isinstance(parts, list) and parts:
+            assistant_text = str(parts[0].get("text", ""))
+
+        await message.answer(assistant_text or "(no response)")
 
     @dp.message(F.voice)
     async def handle_voice(message: Message) -> None:

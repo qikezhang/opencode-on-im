@@ -33,8 +33,15 @@ class Application:
 
     async def run(self) -> None:
         """Start all services and run until shutdown."""
+        await self.session_manager.initialize()
         await self._check_upgrade()
         await self._init_adapters()
+
+        for instance in self.instance_registry.list_instances():
+            users = await self.session_manager.get_instance_users(instance.id)
+            for platform, user_id in users:
+                self.notification_router.register_online(instance.id, platform, user_id)
+
         await self._start_services()
 
         logger.info("application_started", adapters=len(self.adapters))
@@ -42,6 +49,7 @@ class Application:
         await self._shutdown_event.wait()
 
         await self._stop_services()
+        await self.session_manager.close()
         logger.info("application_stopped")
 
     async def shutdown(self) -> None:

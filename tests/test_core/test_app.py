@@ -113,6 +113,8 @@ class TestApplication:
         app._start_services = AsyncMock()
         app._stop_services = AsyncMock()
         app._check_upgrade = AsyncMock()
+        app.session_manager.initialize = AsyncMock()
+        app.session_manager.close = AsyncMock()
 
         await app.run()
 

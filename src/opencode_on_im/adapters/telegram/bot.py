@@ -24,6 +24,7 @@ from opencode_on_im.core.config import Settings
 from opencode_on_im.core.instance import InstanceRegistry
 from opencode_on_im.core.notification import NotificationRouter
 from opencode_on_im.core.session import SessionManager
+from opencode_on_im.opencode.client import OpenCodeClient
 
 logger = structlog.get_logger()
 
@@ -52,6 +53,7 @@ class TelegramAdapter(BaseAdapter):
         )
         self.dp = Dispatcher()
         setup_handlers(self.dp, self)
+        self.opencode_client = OpenCodeClient(settings)
 
     @property
     def platform(self) -> str:
@@ -65,6 +67,7 @@ class TelegramAdapter(BaseAdapter):
         logger.info("telegram_adapter_stopping")
         await self.dp.stop_polling()
         await self.bot.session.close()
+        await self.opencode_client.close()
 
     async def send_text(
         self,
