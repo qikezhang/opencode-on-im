@@ -1,0 +1,31 @@
+services:
+  opencode-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opencode-plugin-test
+    volumes:
+      - ../:/plugin
+      - ./workspace:/workspace
+      - opencode-data:/data/opencode
+    environment:
+      - TERM=xterm-256color
+      - OPENCODE_PLUGIN_DEV=1
+      - OPENCODE_HOME=/data/opencode
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+    stdin_open: true
+    tty: true
+    ports:
+      - "7682:7681"
+      - "4097:4096"
+    restart: "no"
+    networks:
+      - opencode-test-net
+    command: ["sleep", "infinity"]
+
+networks:
+  opencode-test-net:
+    driver: bridge
+
+volumes:
+  opencode-data:
