@@ -11,10 +11,13 @@ OpenCode on IM is an **OpenCode plugin** that lets you interact with your AI cod
 ## Features
 
 - **Remote Access** — Control OpenCode from Telegram on any device
+- **Key Moment Notifications** — Get notified when tasks complete, permissions are needed, errors occur, or todo milestones are reached
 - **Secure Binding** — 10-character verification codes (1 minute expiry)
 - **Multi-User** — Multiple Telegram users can bind to one instance
-- **Bidirectional** — Send messages to AI, receive summaries back
-- **Simple Tools** — Start/stop bot, manage bindings, send messages
+- **Bidirectional** — Send prompts to AI, receive responses and status updates
+- **Slash Commands** — Full session control via Telegram commands
+- **Permission Approval** — Approve/reject AI permission requests directly from Telegram
+- **Persistent Bindings** — User bindings survive bot/OpenCode restarts
 
 ## Quick Start
 
@@ -65,6 +68,61 @@ export TELEGRAM_TOKEN=your_bot_token
 2. Run `im.bind` to get a verification code
 3. Send the code to your Telegram bot
 4. Done! Now you can send messages to OpenCode via Telegram
+
+Bindings are persisted to `$OPENCODE_HOME/opencode-on-im/bindings.json` and survive bot restarts.
+
+## Telegram Commands
+
+Once bound, use these commands in your Telegram chat with the bot:
+
+| Command | Description |
+|---------|-------------|
+| `/start` | Begin binding flow (for new users) |
+| `/help` | Show all available commands |
+| `/status` | Show connection status, active session, todos, pending permissions |
+| `/web` | Get the web interface URL |
+| `/session list` | List all sessions |
+| `/session use <n\|id>` | Switch to session by number or ID prefix |
+| `/session new` | Create a new session |
+| `/approve <id> once\|always\|reject` | Respond to a permission request |
+| `/agent cycle` | Cycle to next agent |
+| `/interrupt` | Interrupt the current session |
+| `/prompt clear` | Clear the TUI prompt |
+| `/prompt submit` | Submit the TUI prompt |
+| `/page up\|down\|half-up\|half-down\|first\|last` | Scroll session view |
+
+**Default behavior**: Any text message (not starting with `/`) is sent to OpenCode as a prompt.
+
+## Notifications
+
+The plugin sends you Telegram notifications for key moments:
+
+| Event | Notification |
+|-------|--------------|
+| **Task Complete** | Session becomes idle after being busy |
+| **Permission Needed** | AI needs approval (with `/approve` hint) |
+| **Retry/Failure** | Session enters retry state or fails |
+| **Todo Progress** | All todos completed, or first todo starts |
+| **Tool Errors** | Tool execution errors |
+
+## Permission Approval Flow
+
+When the AI needs permission for an action:
+
+1. You receive a Telegram message like:
+   ```
+   🔐 Permission Required
+   Tool: bash
+   Path: /path/to/file
+   Reply: /approve abc123 once|always|reject
+   ```
+
+2. Reply with one of:
+   - `/approve abc123 once` — Allow this one time
+   - `/approve abc123 always` — Always allow this action
+   - `/approve abc123 reject` — Deny the request
+
+3. You can use just the ID prefix (e.g., `/approve abc once`)
 
 ## Development
 

@@ -7,6 +7,12 @@ import {
   getBindings,
   removeBinding,
 } from "./state.js";
+
+function formatTodosLine(todos: Array<{ status: string }>): string {
+  const total = todos.length;
+  const done = todos.filter((t) => t.status === "completed").length;
+  return `${done}/${total}`;
+}
 import { startBot, stopBot, sendToAllBound } from "./telegram/bot.js";
 
 interface TextPart {
@@ -22,8 +28,9 @@ interface ToolPart {
   sessionID: string;
   messageID: string;
   type: "tool";
+  callID?: string;
   tool: string;
-  state: { type: string; output?: string };
+  state: { type?: string; status?: string; output?: string; error?: string };
 }
 
 type Part = TextPart | ToolPart | { type: string; [key: string]: unknown };
@@ -59,9 +66,65 @@ interface CommandExecutedEvent {
   };
 }
 
-export const OpenCodeOnImPlugin: Plugin = async ({ client }) => {
+interface PermissionUpdatedEvent {
+  type: "permission.updated";
+  properties: {
+    id: string;
+    sessionID: string;
+    title: string;
+    type: string;
+    pattern?: string | string[];
+    time?: { created: number };
+    metadata?: Record<string, unknown>;
+  };
+}
+
+interface SessionStatusEvent {
+  type: "session.status";
+  properties: {
+    sessionID: string;
+    status:
+      | { type: "idle" }
+      | { type: "busy" }
+      | { type: "retry"; attempt: number; message: string; next: number };
+  };
+}
+
+interface TodoUpdatedEvent {
+  type: "todo.updated";
+  properties: {
+    sessionID: string;
+    todos: Array<{ id: string; content: string; status: string; priority: string }>;
+  };
+}
+
+interface SessionErrorEvent {
+  type: "session.error";
+  properties: {
+    sessionID?: string;
+    error?: { name: string; data?: { message?: string }; message?: string };
+  };
+}
+
+interface MessageUpdatedEvent {
+  type: "message.updated";
+  properties: {
+    info?: {
+      role?: string;
+      sessionID?: string;
+      summary?: boolean;
+      error?: { name?: string; data?: { message?: string }; message?: string };
+      tokens?: { output?: number };
+      cost?: number;
+      finish?: string;
+    };
+  };
+}
+
+export const OpenCodeOnImPlugin: Plugin = async ({ client, serverUrl }) => {
   const state = getState();
   state.client = client;
+  state.serverUrl = serverUrl?.toString() || null;
 
   return {
     event: async ({ event }) => {
@@ -69,8 +132,85 @@ export const OpenCodeOnImPlugin: Plugin = async ({ client }) => {
 
       if (evt.type === "session.created") {
         const e = evt as unknown as SessionCreatedEvent;
-        if (e.properties?.info?.id) {
+        if (!state.activeSessionId && e.properties?.info?.id) {
           state.activeSessionId = e.properties.info.id;
+        }
+      }
+
+      if (evt.type === "session.status" && state.bot && state.bindings.size > 0) {
+        const e = evt as unknown as SessionStatusEvent;
+        const status = e.properties.status;
+        state.sessionStatus = {
+          sessionID: e.properties.sessionID,
+          status: status.type === "retry" ? "retry" : status.type,
+          retry: status.type === "retry" ? { attempt: status.attempt, message: status.message, next: status.next } : undefined,
+          updatedAt: Date.now(),
+        };
+
+        if (status.type === "retry") {
+          try {
+            await sendToAllBound(`[Retry] attempt=${status.attempt} next=${Math.round(status.next / 1000)}s\n${status.message}`);
+          } catch {}
+        }
+
+        if (status.type === "idle") {
+          try {
+            await sendToAllBound(`[Status] session idle (${e.properties.sessionID.slice(0, 8)}...)`);
+          } catch {}
+        }
+      }
+
+      if (evt.type === "todo.updated" && state.bot && state.bindings.size > 0) {
+        const e = evt as unknown as TodoUpdatedEvent;
+        state.sessionTodos.set(e.properties.sessionID, e.properties.todos);
+
+        const todos = e.properties.todos;
+        if (todos.length > 0) {
+          const inProgress = todos.find((t) => t.status === "in_progress");
+          const line = `[Todo] ${formatTodosLine(todos)}${inProgress ? ` | in_progress: ${inProgress.content}` : ""}`;
+          try {
+            await sendToAllBound(line);
+          } catch {}
+        }
+      }
+
+      if (evt.type === "permission.updated" && state.bot && state.bindings.size > 0) {
+        const e = evt as unknown as PermissionUpdatedEvent;
+        state.pendingPermissions.set(e.properties.id, {
+          id: e.properties.id,
+          sessionID: e.properties.sessionID,
+          title: e.properties.title,
+          type: e.properties.type,
+          pattern: e.properties.pattern,
+          time: e.properties.time,
+        });
+
+        try {
+          const short = e.properties.id.slice(0, 8);
+          await sendToAllBound(
+            `[Permission] ${e.properties.title}\n` +
+              `id=${e.properties.id}\n` +
+              `Approve: /approve ${short} once|always|reject`
+          );
+        } catch {}
+      }
+
+      if (evt.type === "session.error" && state.bot && state.bindings.size > 0) {
+        const e = evt as unknown as SessionErrorEvent;
+        const msg = e.properties.error?.data?.message || e.properties.error?.message || e.properties.error?.name || "Unknown error";
+        try {
+          await sendToAllBound(`[Error] ${msg}`);
+        } catch {}
+      }
+
+      if (evt.type === "message.updated" && state.bot && state.bindings.size > 0) {
+        const e = evt as unknown as MessageUpdatedEvent;
+        const info = e.properties.info;
+        if (info?.role === "assistant" && info.error) {
+          const msg = info.error.data?.message || info.error.message || info.error.name || "Unknown error";
+          try {
+            await sendToAllBound(`[Assistant Error] ${msg}`);
+          } catch {}
         }
       }
 
@@ -101,7 +241,15 @@ export const OpenCodeOnImPlugin: Plugin = async ({ client }) => {
 
         if (part?.type === "tool") {
           const toolPart = part as ToolPart;
-          if (toolPart.state?.type === "completed" && toolPart.state.output) {
+          const stateType = toolPart.state?.type || toolPart.state?.status;
+
+          if (stateType === "error" && toolPart.state?.error) {
+            try {
+              await sendToAllBound(`[Tool Error: ${toolPart.tool}]\n${toolPart.state.error}`);
+            } catch {}
+          }
+
+          if ((stateType === "completed" || stateType === "done") && toolPart.state.output) {
             const output = toolPart.state.output;
             if (output.length > 100) {
               const summary = output.length > 1000 ? output.slice(0, 1000) + "..." : output;
